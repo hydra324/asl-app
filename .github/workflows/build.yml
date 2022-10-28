@@ -1,0 +1,27 @@
+name: build-docker-image
+
+on:
+  push:
+    branches:
+    - main
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build docker image for linux
+        run: docker buildx build --platform linux/amd64 -t asl-demo .
+      - name: Tag image to to satisfy heroku's container registry constraints
+        run: docker tag asl-demo registry.heroku.com/asl-demo/web
+      - name: Login to Heroku
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: heroku login
+      - name: Login to heroku's container registry
+        run: heroku container:login
+      - name: Push image to heroku's container registry
+        run: docker push registry.heroku.com/asl-demo/web
+      - name: Scale up/run the container
+        run: heroku container:release web --app asl-demo
