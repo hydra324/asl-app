@@ -18,10 +18,6 @@ jobs:
       - name: Login to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: echo $HEROKU_API_KEY
-      - name: Print check env variable
-        run: heroku login
-      - name: Login to heroku's container registry
         run: heroku container:login
       - name: Push image to heroku's container registry
         run: docker push registry.heroku.com/asl-demo/web
